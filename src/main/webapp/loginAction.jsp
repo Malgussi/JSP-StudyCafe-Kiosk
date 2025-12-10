@@ -10,7 +10,7 @@
     // 2. DB 연결 준비 (아까 DBTest랑 똑같음)
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String dbId = "root";
-    String dbPw = "akfrnTl13!"; // ★ 본인 DB 비밀번호로 꼭 바꾸세요!
+    String dbPw = "your_password"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -53,4 +53,5 @@
         if(pstmt != null) pstmt.close();
         if(conn != null) conn.close();
     }
+
 %>
