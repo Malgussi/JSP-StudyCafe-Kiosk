@@ -13,7 +13,7 @@
     // DB 연결
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; // ★ 비밀번호
+    String pw = "your_password";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -39,4 +39,5 @@
     
     // 삭제 후 다시 장바구니 목록으로 이동
     response.sendRedirect("cartList.jsp");
+
 %>
