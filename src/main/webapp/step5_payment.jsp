@@ -5,10 +5,9 @@
     Integer userId = (Integer) session.getAttribute("userId");
     if (userId == null) { response.sendRedirect("login.jsp"); return; }
 
-    // ★ 시간 설정 수정 (Asia/Seoul)
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=Asia/Seoul";
     String id = "root";
-    String pw = "akfrnTl13!"; 
+    String pw = "your_password"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -234,4 +233,5 @@
         </form>
     </div>
 </body>
+
 </html>
