@@ -10,7 +10,7 @@
     // DB 연결
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; // ★ 비밀번호 수정! ★
+    String pw = "your_password";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -33,8 +33,6 @@
         rs.close(); pstmt.close();
         
         // 2. '사물함 상품(Product)' 정보 찾기 (4주권)
-        // (아까 DB 초기화할 때 사물함 상품이 지워졌을 수 있으니, 없으면 새로 만듭니다)
-        // 안전하게 '사물함' 글자 들어간 거 찾기
         String findProdSql = "SELECT product_id, price FROM Product WHERE product_type='LOCKER' LIMIT 1";
         pstmt = conn.prepareStatement(findProdSql);
         rs = pstmt.executeQuery();
@@ -58,7 +56,7 @@
             
             pstmt = conn.prepareStatement(insertSql);
             pstmt.setInt(1, userId);
-            pstmt.setInt(2, productId); // 만약 상품ID 못찾으면 0 들어가는데, 일단 진행
+            pstmt.setInt(2, productId);
             pstmt.setString(3, lockerId);
             pstmt.setInt(4, price);
             pstmt.executeUpdate();
@@ -73,4 +71,5 @@
     
     // 4. 처리가 끝나면 바로 '결제 페이지'로 이동
     response.sendRedirect("step5_payment.jsp");
+
 %>
