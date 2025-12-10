@@ -5,7 +5,7 @@
     
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; 
+    String pw = "your_password"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -128,4 +128,5 @@
         <button class="btn-back" onclick="history.back()">뒤로가기</button>
     </div>
 </body>
+
 </html>
