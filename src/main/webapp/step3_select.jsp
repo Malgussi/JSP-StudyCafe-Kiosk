@@ -13,7 +13,7 @@
     // DB 연결
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; // ★ 비밀번호 확인
+    String pw = "your_password"; // ★ 비밀번호 확인
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -389,4 +389,5 @@
     </div>
 </body>
 </html>
+
 <% if(conn!=null) conn.close(); %>
