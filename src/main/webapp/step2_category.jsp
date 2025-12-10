@@ -34,7 +34,7 @@
         // 지점 이름 가져오기 (UX용)
         String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
         String id = "root";
-        String pw = "akfrnTl13!"; // ★ 본인 비번으로 수정!
+        String pw = "your_password"; // ★ 본인 비번으로 수정!
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -82,4 +82,5 @@
         <a href="step1_date.jsp" style="color: #999; text-decoration: none;">⬅️ 날짜 다시 선택하기</a>
     </div>
 </body>
+
 </html>
