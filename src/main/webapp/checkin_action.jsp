@@ -7,7 +7,7 @@
 
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=Asia/Seoul";
     String id = "root";
-    String pw = "akfrnTl13!"; 
+    String pw = "your_password"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -19,7 +19,6 @@
         conn.setAutoCommit(false); 
 
         // 1. 해당 예약의 상품 정보(이용 시간/기간) 조회
-        // (입실하는 순간 시간을 재설정하기 위해 필요)
         String prodSql = "SELECT p.hours, p.days, p.product_type FROM Reservation r " + 
                          "JOIN Product p ON r.product_id = p.product_id WHERE r.reservation_id = ?";
         pstmt = conn.prepareStatement(prodSql);
@@ -100,4 +99,5 @@
 <script>
     alert("✅ 입실 처리가 완료되었습니다.\n지금부터 이용 시간이 카운트됩니다.");
     location.href = "main.jsp";
+
 </script>
