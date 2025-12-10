@@ -5,7 +5,7 @@
     
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; 
+    String pw = "your_password"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -98,8 +98,6 @@
                         if(sType == null) sType = "";
                         if(status == null) status = "Available";
 
-                        // ★★★ [핵심 수정] ★★★
-                        // 좌석 타입이 뭐든 상관없이, 'Available(빈자리)'이면 무조건 선택 가능!
                         boolean canSelect = "Available".equalsIgnoreCase(status);
                         
                         // 화면 표시 텍스트
@@ -144,4 +142,5 @@
         <button class="btn-back" onclick="history.back()">뒤로가기</button>
     </div>
 </body>
+
 </html>
