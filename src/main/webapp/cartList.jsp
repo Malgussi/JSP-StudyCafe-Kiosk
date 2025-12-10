@@ -7,7 +7,7 @@
 
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!";
+    String pw = "your_password";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -148,4 +148,5 @@
         
     </div>
 </body>
+
 </html>
