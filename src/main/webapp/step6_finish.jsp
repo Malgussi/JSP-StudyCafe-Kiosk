@@ -10,7 +10,7 @@
 
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; // ★ 비밀번호 (숫자 13)
+    String pw = "your_password";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -81,7 +81,7 @@
         if(rs.next()) paymentId = rs.getInt(1);
         rs.close(); pstmt.close();
         
-        // 4. Reservation 업데이트 (핵심 로직!)
+        // 4. Reservation 업데이트
         // 룸 -> Scheduled(예정), 좌석/사물함 -> Active(즉시사용)
         String updateResSql = "UPDATE Reservation r " +
                               "JOIN Product p ON r.product_id = p.product_id " +
@@ -153,4 +153,5 @@
         <% } %>
     </div>
 </body>
+
 </html>
