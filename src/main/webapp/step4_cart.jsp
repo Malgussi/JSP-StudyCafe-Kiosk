@@ -24,7 +24,7 @@
     // DB 연결
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "akfrnTl13!"; // ★ 비밀번호 (숫자 13)
+    String pw = "your_password";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -116,7 +116,7 @@
                 int endHour = startHour + duration;
                 endDateTime = selectedDate + " " + String.format("%02d", endHour) + ":00:00";
             } else {
-                // 좌석: 일단 오늘부터 시작한다고 가정 (기간권 등은 나중에 로직 정교화 가능)
+                // 좌석
                 startDateTime = selectedDate + " 00:00:00";
                 endDateTime = selectedDate + " 23:59:59"; // 임시
             }
@@ -217,4 +217,5 @@
         </div>
     </div>
 </body>
+
 </html>
