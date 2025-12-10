@@ -26,7 +26,7 @@
                     // DB 연결 설정 (비밀번호 수정하세요!)
                     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
                     String id = "root";
-                    String pw = "akfrnTl13!"; // ★ 본인 비밀번호로 수정!
+                    String pw = "your_password"; // ★ 본인 비밀번호로 수정!
 
                     Connection conn = null;
                     PreparedStatement pstmt = null;
@@ -68,4 +68,5 @@
         document.getElementById("datePicker").value = today; // 기본값 오늘
     </script>
 </body>
+
 </html>
