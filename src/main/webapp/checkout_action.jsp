@@ -6,7 +6,7 @@
 
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=Asia/Seoul";
     String id = "root";
-    String pw = "akfrnTl13!"; 
+    String pw = "your_passwd"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -93,4 +93,5 @@
     } finally {
         if(conn != null) conn.close();
     }
+
 %>
