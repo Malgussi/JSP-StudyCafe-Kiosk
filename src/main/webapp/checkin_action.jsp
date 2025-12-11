@@ -66,7 +66,7 @@
             pstmt.close();
         } 
         else if(lockerId != null) {
-            String updateResSql = "UPDATE Reservation SET locker_id = ?, status='Active'" + updateTimePart + " WHERE reservation_id = ?";
+            String updateResSql = "UPDATE Reservation SET locker_id = ?, status='InUse'" + updateTimePart + " WHERE reservation_id = ?";
             pstmt = conn.prepareStatement(updateResSql);
             pstmt.setString(1, lockerId);
             pstmt.setString(2, resId);
@@ -101,3 +101,4 @@
     location.href = "main.jsp";
 
 </script>
+
