@@ -4,7 +4,10 @@ JSP와 MySQL을 활용하여 구현한 **스터디카페 키오스크 & 예약 �
 사용자는 좌석/룸/사물함을 예약하고, 결제 및 입실 처리를 할 수 있습니다.
 
 ## 🖥️ 시연 화면
-(여기에 시연했던 캡처 이미지들을 드래그해서 넣으면 이미지가 뜹니다!)
+<img width="584" height="564" alt="image" src="https://github.com/user-attachments/assets/55faa9ce-c3b5-4d96-878f-898479b44a36" />
+<img width="796" height="260" alt="image" src="https://github.com/user-attachments/assets/083f703e-dc3f-4407-92e9-230f03b44e1a" />
+<img width="789" height="735" alt="image" src="https://github.com/user-attachments/assets/95c60e4d-bc50-4861-a686-a611e2aa262e" />
+<img width="552" height="542" alt="image" src="https://github.com/user-attachments/assets/69558413-3f0d-4c0a-8015-ad58a8ed23f0" />
 
 ## 🛠️ 개발 환경
 - **Language:** Java (JSP), HTML/CSS, JavaScript
