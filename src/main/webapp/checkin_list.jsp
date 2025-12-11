@@ -53,7 +53,7 @@
     .btn-checkin { background-color: #28a745; color: white; }
     .btn-checkin:hover { background-color: #218838; }
 
-    /* 좌석 선택 버튼 (노랑) */
+    /* 선택 버튼 (노랑) */
     .btn-select { background-color: #ffc107; color: #333; }
     .btn-select:hover { background-color: #e0a800; }
 
@@ -69,11 +69,8 @@
 <script>
     function checkIn(resId, targetId) {
         if(confirm('입실 하시겠습니까?')) {
-            // targetId가 null이면 빈 문자열로 처리 (오류 방지)
             if(targetId == null || targetId == 'null') targetId = '';
-            
-            // 사물함인지 좌석인지 구분 없이, ID가 있으면 넘김
-            // (checkin_action.jsp가 알아서 처리함)
+            // targetId가 seatId/roomId면 seatId로, lockerId면 lockerId로 값이 들어감
             location.href = 'checkin_action.jsp?resId=' + resId + '&seatId=' + targetId + '&lockerId=' + targetId;
         }
     }
@@ -97,10 +94,10 @@
                     Class.forName("com.mysql.cj.jdbc.Driver");
                     conn = DriverManager.getConnection(url, id, pw);
 
-                    // 나의 'Scheduled(예약됨)' 또는 'InUse(사용중)' 상태인 예약 조회
+                    // 상태 조회 조건: InUse, Scheduled, Active, InCart 모두 조회
                     String sql = "SELECT r.*, p.product_name, p.product_type " +
                                  "FROM Reservation r JOIN Product p ON r.product_id = p.product_id " +
-                                 "WHERE r.member_id = ? AND r.status IN ('Scheduled', 'InUse') " +
+                                 "WHERE r.member_id = ? AND r.status IN ('InUse', 'Scheduled', 'Active', 'InCart') " +
                                  "ORDER BY r.status ASC, r.reservation_id DESC";
                     
                     pstmt = conn.prepareStatement(sql);
@@ -111,19 +108,17 @@
                         int rId = rs.getInt("reservation_id");
                         String rStatus = rs.getString("status");
                         String pName = rs.getString("product_name");
-                        String pType = rs.getString("product_type"); // SEAT, LOCKER, ROOM
+                        String pType = rs.getString("product_type");
                         
                         String seatId = rs.getString("seat_id");
                         String lockerId = rs.getString("locker_id");
                         
-                        // 화면에 보여줄 시작/종료 시간
                         Timestamp startTs = rs.getTimestamp("start_datetime");
                         Timestamp endTs = rs.getTimestamp("end_datetime");
                         
-                        // 오픈 대기 기능용 시간 비교
                         long nowTime = System.currentTimeMillis();
                         long startTime = (startTs != null) ? startTs.getTime() : 0;
-                        boolean isTimeOk = (nowTime >= startTime); // 현재 시간이 시작 시간보다 지났는가?
+                        boolean isTimeOk = (nowTime >= startTime); 
 
                         String dateStr = (startTs != null && endTs != null) ? 
                                          startTs.toString().substring(5, 16) + " ~ " + endTs.toString().substring(5, 16) : "기간 미정";
@@ -135,13 +130,9 @@
                         
                         <div class="seat-info">
                             <% if("LOCKER".equals(pType)) { %>
-                                🔑 <span class="locker-badge">
-                                    <%= (lockerId != null) ? "사물함 번호: " + lockerId : "사물함 미지정" %>
-                                </span>
+                                🔑 <span class="locker-badge"><%= (lockerId != null) ? "사물함: " + lockerId : "사물함 미지정" %></span>
                             <% } else { %>
-                                💺 <span class="seat-badge">
-                                    <%= (seatId != null) ? "지정석/룸: " + seatId : "좌석 미지정" %>
-                                </span>
+                                💺 <span class="seat-badge"><%= (seatId != null) ? "지정석/룸: " + seatId : "좌석 미지정" %></span>
                             <% } %>
                         </div>
                         
@@ -150,7 +141,7 @@
 
                     <div class="btn-area">
                         <% 
-                           // 1. [이용 중] 상태일 때 -> 퇴실 버튼 표시
+                           // 1. [진짜 이용 중] 상태일 때만 -> 퇴실 버튼 표시
                            if ("InUse".equals(rStatus)) { 
                         %>
                             <% if(!"LOCKER".equals(pType)) { %>
@@ -158,27 +149,35 @@
                                     이용중 (퇴실하기) 👋
                                 </button>
                             <% } else { %>
-                                <button class="btn btn-checkin" style="cursor:default;">이용 중 ✅</button>
+                                <button class="btn btn-checkin" style="cursor:default; background:#28a745;">이용 중 ✅</button>
                             <% } %>
 
                         <% 
-                           // 2. [예약] 상태일 때
-                           } else if ("Scheduled".equals(rStatus)) { 
+                           // 2. [입실 대기] 상태 (Scheduled, Active, InCart 등)일 때
+                           } else { 
                         %>
                             <% 
-                               // (A) 좌석 선택이 필요한 경우: 
-                               // "SEAT" 타입이면서 아직 좌석번호가 없는 경우만 해당 (ROOM은 제외!)
-                               if (seatId == null && "SEAT".equals(pType)) { 
+                               // (A) 사물함 미지정 상태
+                               if (lockerId == null && "LOCKER".equals(pType)) { 
+                            %>
+                                <button class="btn btn-select" onclick="location.href='checkin_locker_select.jsp?resId=<%=rId%>'">
+                                    사물함 선택 🔑
+                                </button>
+                            <% 
+                               // (B) 좌석 미지정 상태
+                               } else if (seatId == null && "SEAT".equals(pType)) {
                             %>
                                 <button class="btn btn-select" onclick="location.href='checkin_seat_select.jsp?resId=<%=rId%>'">
                                     좌석 선택 👆
                                 </button>
-
                             <% 
-                               // (B) 이미 배정되었거나(사물함/룸/지정석), 선택이 필요 없는 경우
+                               // (C) 모든 것이 지정된 상태이거나, 선택이 필요 없는 경우 -> 입실 버튼
                                } else { 
                             %>
-                                <% if (isTimeOk) { %>
+                                <% 
+                                   // 시간이 되었거나, InCart/Active 등 바로 입실 가능한 상태일 때만 버튼 활성화
+                                   if (isTimeOk || "InCart".equals(rStatus) || "Active".equals(rStatus)) { 
+                                %>
                                     <button class="btn btn-checkin" onclick="checkIn(<%=rId%>, '<%= (seatId!=null)?seatId:lockerId %>')">
                                         입실 하기 🚪
                                     </button>
@@ -188,7 +187,6 @@
                                     </button>
                                 <% } %>
                             <% } %>
-                        
                         <% } %>
                     </div>
                 </div>
