@@ -3,14 +3,15 @@
 <%
     request.setCharacterEncoding("UTF-8");
     Integer userId = (Integer) session.getAttribute("userId");
-    String branchId = request.getParameter("branchId"); // 지점 정보가 필요함
+    // branchId는 이제 필요 없지만, 혹시 나중에 쓸 수 있으니 받아는 둡니다.
+    String branchId = request.getParameter("branchId"); 
 
     if (userId == null) { response.sendRedirect("login.jsp"); return; }
 
     // DB 연결
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "your_password";
+    String pw = "your_passwd";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -20,19 +21,10 @@
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection(url, id, pw);
         
-        // 1. 해당 지점에서 '사용 가능한(Available)' 사물함 아무거나 하나 찾기
-        String findLockerSql = "SELECT locker_id FROM Locker WHERE branch_id = ? AND status = 'Available' LIMIT 1";
-        pstmt = conn.prepareStatement(findLockerSql);
-        pstmt.setString(1, branchId);
-        rs = pstmt.executeQuery();
+        // 1. 사물함 미리 찾기 로직 삭제 
+        // (구매 시점에는 사물함을 지정하지 않음 -> 나중에 '사용하기' 누를 때 선택)
         
-        String lockerId = null;
-        if (rs.next()) {
-            lockerId = rs.getString("locker_id");
-        }
-        rs.close(); pstmt.close();
-        
-        // 2. '사물함 상품(Product)' 정보 찾기 (4주권)
+        // 2. '사물함 상품(Product)' 정보 찾기 (가격 정보 필요)
         String findProdSql = "SELECT product_id, price FROM Product WHERE product_type='LOCKER' LIMIT 1";
         pstmt = conn.prepareStatement(findProdSql);
         rs = pstmt.executeQuery();
@@ -44,32 +36,33 @@
             productId = rs.getInt("product_id");
             price = rs.getInt("price");
         } else {
-            // 상품이 없으면 임시로 가격 설정 (혹시 모를 에러 방지)
+            // 상품이 없으면 임시로 가격 설정 (예외 방지)
             price = 9000; 
         }
+        rs.close(); // ResultSet 닫기
+        pstmt.close(); // PreparedStatement 재사용을 위해 닫기
         
         // 3. 예약(장바구니) 추가
-        if (lockerId != null) {
-            String insertSql = "INSERT INTO Reservation " +
-                               "(member_id, product_id, locker_id, start_datetime, end_datetime, total_fee, status) " +
-                               "VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 28 DAY), ?, 'InCart')";
+        String insertSql = "INSERT INTO Reservation " +
+                           "(member_id, product_id, locker_id, start_datetime, end_datetime, total_fee, status) " +
+                           "VALUES (?, ?, NULL, NOW(), DATE_ADD(NOW(), INTERVAL 28 DAY), ?, 'InCart')";
             
-            pstmt = conn.prepareStatement(insertSql);
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, productId);
-            pstmt.setString(3, lockerId);
-            pstmt.setInt(4, price);
-            pstmt.executeUpdate();
-        }
+        pstmt = conn.prepareStatement(insertSql);
+        pstmt.setInt(1, userId);
+        pstmt.setInt(2, productId);
+        // pstmt.setString(3, lockerId); 
+        pstmt.setInt(3, price);          // <--- 3번째 물음표가 바로 가격(total_fee)이 됩니다.
+        
+        pstmt.executeUpdate();
 
     } catch(Exception e) {
         e.printStackTrace();
     } finally {
-        if(pstmt!=null) pstmt.close();
-        if(conn!=null) conn.close();
+        if(rs!=null) try { rs.close(); } catch(SQLException ex) {}
+        if(pstmt!=null) try { pstmt.close(); } catch(SQLException ex) {}
+        if(conn!=null) try { conn.close(); } catch(SQLException ex) {}
     }
     
-    // 4. 처리가 끝나면 바로 '결제 페이지'로 이동
+    // 4. 처리가 끝나면 '결제 페이지'로 이동
     response.sendRedirect("step5_payment.jsp");
-
 %>
