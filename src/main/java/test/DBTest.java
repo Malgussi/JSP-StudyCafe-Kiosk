@@ -4,17 +4,15 @@ import java.sql.DriverManager;
 
 public class DBTest {
     public static void main(String[] args) {
-        // 1. DB 접속 정보 (본인 환경에 맞게 수정 필수!)
+        // 1. DB 접속 정보
         String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC"; // DB 주소
-        String id = "root"; // MySQL 아이디 (보통 root)
-        String pw = "akfrnTl13!"; // ★ 중요: MySQL 설치할 때 설정한 비밀번호 넣기!
+        String id = "root"; 
+        String pw = "your_passwd";
 
         // 2. 연결 시도
         try {
-            // 통역사 부르기
             Class.forName("com.mysql.cj.jdbc.Driver");
             
-            // 전화를 겁니다 (연결)
             Connection conn = DriverManager.getConnection(url, id, pw);
             
             if(conn != null) {
@@ -29,4 +27,5 @@ public class DBTest {
             e.printStackTrace(); // 에러 내용을 빨간 글씨로 보여줌
         }
     }
+
 }
