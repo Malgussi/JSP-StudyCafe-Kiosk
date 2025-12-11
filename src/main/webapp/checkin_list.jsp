@@ -9,7 +9,7 @@
 
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=Asia/Seoul";
     String id = "root";
-    String pw = "your_password"; 
+    String pw = "your_passwd"; 
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -30,10 +30,11 @@
     .ticket-time { font-size: 13px; color: #999; margin-top: 3px; }
     
     .btn-enter { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; }
-    .btn-blue { background-color: #1890ff; } /* 좌석선택 */
-    .btn-green { background-color: #4CAF50; } /* 입실하기/이용중 */
-    .btn-orange { background-color: #ff9800; } /* 사물함선택 */
+    .btn-blue { background-color: #1890ff; } 
+    .btn-green { background-color: #4CAF50; } 
+    .btn-orange { background-color: #ff9800; } 
     .btn-gray { background-color: #9e9e9e; cursor: not-allowed; } /* 대기 */
+    .btn-dark { background-color: #555; cursor: not-allowed; } /* 종료 */
     
     .empty-msg { color: #888; margin-top: 50px; font-size: 18px; }
 </style>
@@ -48,7 +49,8 @@
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 conn = DriverManager.getConnection(url, id, pw);
                 
-                String sql = "SELECT r.reservation_id, r.seat_id, r.locker_id, r.start_datetime, r.status, " +
+                // end_datetime 도 같이 조회
+                String sql = "SELECT r.reservation_id, r.seat_id, r.locker_id, r.start_datetime, r.end_datetime, r.status, " +
                              "p.product_name, p.product_type, " +
                              "s.seat_number, rm.room_name, l.locker_number " +
                              "FROM Reservation r " +
@@ -67,20 +69,26 @@
                     hasTicket = true;
                     int resId = rs.getInt("reservation_id");
                     String pName = rs.getString("product_name");
-                    String type = rs.getString("product_type"); // SEAT, ROOM, LOCKER
+                    String type = rs.getString("product_type"); 
                     String status = rs.getString("status");
                     Timestamp startDt = rs.getTimestamp("start_datetime");
+                    Timestamp endDt = rs.getTimestamp("end_datetime"); // 종료 시간
                     
                     String seatNum = rs.getString("seat_number");
                     String roomName = rs.getString("room_name");
                     String lockerNum = rs.getString("locker_number");
                     
-                    // 1. 시간 및 상태 체크
+                    // 시간 체크 로직
                     Timestamp now = new Timestamp(System.currentTimeMillis());
-                    boolean isFuture = startDt.after(now); 
+                    boolean isFuture = startDt.after(now); // 미래인가?
+                    boolean isExpired = (endDt != null) && now.after(endDt); // 끝났는가? (현재시간 > 종료시간)
                     boolean isInUse = "InUse".equals(status);
                     
                     String startStr = sdf.format(startDt);
+                    String endStr = (endDt != null) ? sdf.format(endDt) : "";
+                    
+                    String timeText = "이용 시간: " + startStr + " ~ " + endStr;
+                    if(endDt == null) timeText = "시작 일시: " + startStr; // 기간권 등
                     
                     // 텍스트 정리
                     String infoText = "";
@@ -93,7 +101,7 @@
             <div class="ticket-box">
                 <div class="ticket-title"><%= pName %></div>
                 <div class="ticket-info"><%= infoText %></div>
-                <div class="ticket-time">시작 일시: <%= startStr %></div>
+                <div class="ticket-time"><%= timeText %></div>
                 
                 <% 
                    // [버튼 로직]
@@ -104,42 +112,35 @@
                     <button class="btn-enter btn-green" onclick="alert('현재 이용 중입니다.')">이용 중 ✅</button>
                 
                 <% 
-                   // 2. 시간이 아직 안 된 경우 (미래) -> 오픈 대기
+                   // 2. 이미 종료된 시간인 경우
+                   } else if(isExpired) { 
+                %>
+                    <button class="btn-enter btn-dark" onclick="alert('이용 시간이 종료되었습니다.')">이용 종료 🚫</button>
+
+                <% 
+                   // 3. 시간이 아직 안 된 경우 (미래)
                    } else if(isFuture) { 
                 %>
                     <button class="btn-enter btn-gray" onclick="alert('예약 시간이 되어야 입실할 수 있습니다.\n시작시간: <%= startStr %>')">오픈 대기 ⏳</button>
                 
                 <% 
-                   // 3. 시간이 됨 (입장/선택 가능)
+                   // 4. 입장 가능!
                    } else {
-                        // (A) 좌석
                         if("SEAT".equals(type)) {
                             if(seatNum == null) {
-                                // 자유석 (자리 없음) -> 좌석 선택
                 %>
                                 <button class="btn-enter btn-blue" onclick="location.href='checkin_seat_select.jsp?resId=<%= resId %>'">좌석 선택 💺</button>
-                <%          } else { 
-                                // 지정석 (자리 있음) -> 입실 하기 (누르면 InUse로 변경)
-                %>
+                <%          } else { %>
                                 <button class="btn-enter btn-green" onclick="location.href='checkin_action.jsp?resId=<%= resId %>'">입실 하기 🚪</button>
                 <%          }
-                        }
-                        
-                        // (B) 사물함
-                        else if("LOCKER".equals(type)) {
+                        } else if("LOCKER".equals(type)) {
                             if(lockerNum == null) {
-                                // 사물함 미지정 -> 사물함 선택
                 %>
                                 <button class="btn-enter btn-orange" onclick="location.href='checkin_locker_select.jsp?resId=<%= resId %>'">사물함 선택 🔑</button>
-                <%          } else {
-                                // 사물함 지정됨 -> 사용 하기 (누르면 InUse로 변경)
-                %>
+                <%          } else { %>
                                 <button class="btn-enter btn-green" onclick="location.href='checkin_action.jsp?resId=<%= resId %>'">사용 하기 🔓</button>
                 <%          }
-                        }
-                        
-                        // (C) 스터디룸
-                        else { 
+                        } else { 
                 %>
                         <button class="btn-enter btn-green" onclick="location.href='checkin_action.jsp?resId=<%= resId %>'">입실 하기 🚪</button>
                 <%      } 
@@ -148,7 +149,6 @@
             </div>
         <%
                 }
-                
                 if(!hasTicket) {
         %>
             <div class="empty-msg">
@@ -164,7 +164,5 @@
         <div style="margin-top:40px;">
             <a href="main.jsp" style="color:#666; text-decoration:none; border:1px solid #ccc; padding:10px 20px; border-radius:20px;">← 메인으로 돌아가기</a>
         </div>
-    </div>
-</body>
-
+        </body>
 </html>
