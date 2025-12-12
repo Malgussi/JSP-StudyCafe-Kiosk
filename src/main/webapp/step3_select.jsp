@@ -13,7 +13,7 @@
     // DB 연결
     String url = "jdbc:mysql://localhost:3306/study_cafe?serverTimezone=UTC";
     String id = "root";
-    String pw = "your_password";
+    String pw = "your_passwd";
 
     Connection conn = null;
     PreparedStatement pstmt = null;
@@ -346,7 +346,7 @@
                         <h3>2. 이용 기간을 선택해주세요</h3>
                         <div class="prod-list">
                             <%
-                                    String prodSql = "SELECT * FROM Product WHERE product_type='SEAT' AND days > 0 ORDER BY price";
+                                    String prodSql = "SELECT * FROM Product WHERE product_name LIKE '%지정석%' ORDER BY price";
                                     pstmt = conn.prepareStatement(prodSql);
                                     rs = pstmt.executeQuery();
                                     while(rs.next()) {
@@ -370,7 +370,8 @@
                             try {
                                 Class.forName("com.mysql.cj.jdbc.Driver");
                                 conn = DriverManager.getConnection(url, id, pw);
-                                String prodSql = "SELECT * FROM Product WHERE product_type='SEAT' AND (hours > 0 OR fixed_time_hours > 0) ORDER BY price";
+                         
+                                String prodSql = "SELECT * FROM Product WHERE product_name LIKE '%자유석%' OR product_name LIKE '%정액권%' ORDER BY price";
                                 pstmt = conn.prepareStatement(prodSql);
                                 rs = pstmt.executeQuery();
                                 while(rs.next()) {
@@ -389,6 +390,4 @@
     </div>
 </body>
 </html>
-
 <% if(conn!=null) conn.close(); %>
-
