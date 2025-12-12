@@ -30,7 +30,7 @@
     * **기간권(지정석/사물함):** 퇴실 시 `Scheduled` 상태로 복귀 (기간 내 재입장 가능).
 
 ## 💾 설치 및 실행 (DB 설정)
-1. `database.sql` 파일을 MySQL에 import 하세요.
+1. `studyCafe_db.sql` 파일을 MySQL에 import 하세요.
 2. `src/main/webapp/` 내의 JSP 파일들에서 DB 연결 설정을 본인 환경에 맞게 변경하세요.
    - `serverTimezone=Asia/Seoul`
    - ID/PW 변경 필수
